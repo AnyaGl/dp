@@ -24,6 +24,7 @@ namespace Valuator
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+            services.AddScoped<IStorage, RedisStorage>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
