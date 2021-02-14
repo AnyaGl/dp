@@ -30,11 +30,12 @@ namespace Valuator.Pages
 
             string textKey = "TEXT-" + id;
             //TODO: сохранить в БД text по ключу textKey
-
-            //TODO: посчитать оценку текста
-
+            
             string rankKey = "RANK-" + id;
-            //TODO: сохранить в БД оценку по ключу rankKey
+            //TODO: посчитать rank и сохранить в БД по ключу rankKey
+
+            string similarityKey = "SIMILARITY-" + id;
+            //TODO: посчитать similarity и сохранить в БД по ключу similarityKey
 
             return Redirect($"summary?id={id}");
         }

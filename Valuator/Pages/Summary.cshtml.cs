@@ -18,12 +18,13 @@ namespace Valuator.Pages
         }
 
         public double Rank { get; set; }
+        public double Similarity { get; set; }
 
         public void OnGet(string id)
         {
             _logger.LogDebug(id);
 
-            //TODO: получить из БД оценку и записать в свойство Rank
+            //TODO: РїСЂРѕРёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ СЃРІРѕР№СЃС‚РІР° Rank Рё Similarity СЃРѕС…СЂР°РЅС‘РЅРЅС‹РјРё РІ Р‘Р” Р·РЅР°С‡РµРЅРёСЏРјРё
         }
     }
 }
