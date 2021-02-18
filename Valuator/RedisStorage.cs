@@ -34,9 +34,9 @@ namespace Valuator
             {
                 _logger.LogWarning("Failed to save {0}: {1}", key, value);
             }
-            else
+            else if (key.StartsWith("TEXT-") && !IsSavedText(value))
             {
-                _texts.Add(value);
+                 _texts.Add(value);
             }
         }
 
@@ -45,10 +45,24 @@ namespace Valuator
             var server = _conn.GetServer(host, port);
             foreach (var key in server.Keys(pattern: "TEXT-*"))
             {
-                _texts.Add(Load(key));
+                var text = Load(key);
+                if (!IsSavedText(text))
+                {
+                    _texts.Add(text);
+                }
             }
         }
-
+        private bool IsSavedText(string text)
+        {
+            foreach (var savedText in _texts)
+            {
+                if(text == savedText)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         public List<string> GetAllTexts()
         {
             return _texts;
