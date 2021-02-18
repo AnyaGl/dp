@@ -6,13 +6,16 @@ namespace Valuator
 {
     public class RedisStorage : IStorage
     {
+        private readonly string host = "localhost";
+        private readonly int port = 6379;
         private readonly ILogger<RedisStorage> _logger;
         private IConnectionMultiplexer _conn;
-        
+        private List<string> _texts = new List<string>();
         public RedisStorage(ILogger<RedisStorage> logger)
         {
             _logger = logger;
-            _conn = ConnectionMultiplexer.Connect("localhost");
+            _conn = ConnectionMultiplexer.Connect(host);
+            SaveAllTexts();
         }
         public string Load(string key)
         {
@@ -31,17 +34,24 @@ namespace Valuator
             {
                 _logger.LogWarning("Failed to save {0}: {1}", key, value);
             }
-        }
-        public Dictionary<string, string> GetAllValuesWithKeyStartingWith(string keyStart)
-        {
-            var server = _conn.GetServer("localhost", 6379);
-
-            Dictionary<string, string> values = new Dictionary<string, string>();
-            foreach (var key in server.Keys(pattern: keyStart + "*"))
+            else
             {
-                values.Add(key, Load(key));
+                _texts.Add(value);
             }
-            return values;
+        }
+
+        private void SaveAllTexts()
+        {
+            var server = _conn.GetServer(host, port);
+            foreach (var key in server.Keys(pattern: "TEXT-*"))
+            {
+                _texts.Add(Load(key));
+            }
+        }
+
+        public List<string> GetAllTexts()
+        {
+            return _texts;
         }
     }
 }

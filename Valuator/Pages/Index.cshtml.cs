@@ -28,9 +28,6 @@ namespace Valuator.Pages
 
             string id = Guid.NewGuid().ToString();
 
-            string textKey = "TEXT-" + id;
-            _storage.Store(textKey, text);
-
             string rankKey = "RANK-" + id;
             var rank = GetRank(text);
             _storage.Store(rankKey, rank.ToString());
@@ -38,6 +35,9 @@ namespace Valuator.Pages
             string similarityKey = "SIMILARITY-" + id;
             int similarity = GetSimilarity(text, id);
             _storage.Store(similarityKey, similarity.ToString());
+
+            string textKey = "TEXT-" + id;
+            _storage.Store(textKey, text);
 
             return Redirect($"summary?id={id}");
         }
@@ -56,10 +56,10 @@ namespace Valuator.Pages
         private int GetSimilarity(string text, string id)
         {
             id = "TEXT-" + id;
-            var pairs = _storage.GetAllValuesWithKeyStartingWith("TEXT-");
-            foreach (var pair in pairs)
+            var values = _storage.GetAllTexts();
+            foreach (var value in values)
             {
-                if(pair.Key != id && pair.Value == text)
+                if(value == text)
                 {
                     return 1;
                 }
