@@ -26,10 +26,10 @@ namespace Valuator.Pages
         {
             _logger.LogDebug(id);
             var counter = 0;
-            var rank = _storage.Load("RANK-" + id);
-            while (rank.Length == 0 && counter < 5000)
+            var rank = _storage.Load(Constants.RANK_PREFIX + id);
+            while (rank.Length == 0 && counter < 1000)
             {
-                rank = _storage.Load("RANK-" + id);
+                rank = _storage.Load(Constants.RANK_PREFIX + id);
                 ++counter;
             }
             if (rank.Length == 0)
@@ -38,7 +38,7 @@ namespace Valuator.Pages
             }
 
             Rank = Convert.ToDouble(rank);            
-            Similarity = Convert.ToDouble(_storage.Load("SIMILARITY-" + id.ToString()));
+            Similarity = Convert.ToDouble(_storage.Load(Constants.SIMILARITY_PREFIX + id.ToString()));
         }
     }
 }

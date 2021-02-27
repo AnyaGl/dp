@@ -34,7 +34,7 @@ namespace Valuator
             {
                 _logger.LogWarning("Failed to save {0}: {1}", key, value);
             }
-            else if (key.StartsWith("TEXT-") && !IsSavedText(value))
+            else if (key.StartsWith(Constants.TEXT_PREFIX) && !IsSavedText(value))
             {
                  _texts.Add(value);
             }
@@ -43,7 +43,7 @@ namespace Valuator
         private void SaveAllTexts()
         {
             var server = _conn.GetServer(host, port);
-            foreach (var key in server.Keys(pattern: "TEXT-*"))
+            foreach (var key in server.Keys(pattern: $"{Constants.TEXT_PREFIX}*"))
             {
                 var text = Load(key);
                 if (!IsSavedText(text))

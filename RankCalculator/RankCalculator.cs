@@ -17,8 +17,8 @@ namespace RankCalculator
             _subscription = _conn.SubscribeAsync("valuator.processing.rank", "rank_calculator", (sender, args) =>
             {
                 string id = Encoding.UTF8.GetString(args.Message.Data);
-                var text = storage.Load("TEXT-" + id);
-                string rankKey = "RANK-" + id;
+                var text = storage.Load(Constants.TEXT_PREFIX + id);
+                string rankKey = Constants.RANK_PREFIX + id;
                 var rank = GetRank(text);
                 storage.Store(rankKey, rank.ToString());
             });
@@ -28,7 +28,12 @@ namespace RankCalculator
         {
             _subscription.Start();
 
-            Console.ReadLine();        
+            Console.ReadLine();   
+
+            _subscription.Unsubscribe();
+
+            _conn.Drain();
+            _conn.Close();      
         }
 
         private double GetRank(string text)
@@ -42,16 +47,6 @@ namespace RankCalculator
                 }
             }
             return Convert.ToDouble(nonAlphabeticalCharsCounter) / Convert.ToDouble(text.Length);
-        }
-
-        ~RankCalculator()
-        {
-
-            _subscription.Unsubscribe();
-
-            _conn.Drain();
-            _conn.Close();  
-
         }
 
     }

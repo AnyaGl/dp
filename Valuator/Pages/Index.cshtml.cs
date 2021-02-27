@@ -31,11 +31,11 @@ namespace Valuator.Pages
 
             string id = Guid.NewGuid().ToString();
 
-            string similarityKey = "SIMILARITY-" + id;
+            string similarityKey = Constants.SIMILARITY_PREFIX + id;
             int similarity = GetSimilarity(text, id);
             _storage.Store(similarityKey, similarity.ToString());
 
-            string textKey = "TEXT-" + id;
+            string textKey = Constants.TEXT_PREFIX + id;
             _storage.Store(textKey, text);
 
             CalculateAndSaveRank(id);
@@ -68,7 +68,7 @@ namespace Valuator.Pages
         }
         private int GetSimilarity(string text, string id)
         {
-            id = "TEXT-" + id;
+            id = Constants.TEXT_PREFIX + id;
             var values = _storage.GetAllTexts();
             foreach (var value in values)
             {
