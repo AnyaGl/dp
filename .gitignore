@@ -445,3 +445,4 @@ nginx/*
 !nginx/conf
 nginx/conf/*
 !nginx/conf/nginx.conf
+nats/*
