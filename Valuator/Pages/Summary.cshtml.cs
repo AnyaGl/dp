@@ -25,7 +25,19 @@ namespace Valuator.Pages
         public void OnGet(string id)
         {
             _logger.LogDebug(id);
-            Rank = Convert.ToDouble(_storage.Load("RANK-" + id.ToString()));
+            var counter = 0;
+            var rank = _storage.Load("RANK-" + id);
+            while (rank.Length == 0 && counter < 5000)
+            {
+                rank = _storage.Load("RANK-" + id);
+                ++counter;
+            }
+            if (rank.Length == 0)
+            {
+                _logger.LogWarning($"rank for id {id} does not found");
+            }
+
+            Rank = Convert.ToDouble(rank);            
             Similarity = Convert.ToDouble(_storage.Load("SIMILARITY-" + id.ToString()));
         }
     }

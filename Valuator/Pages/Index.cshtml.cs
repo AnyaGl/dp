@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using NATS.Client;
+using System.Text;
+using System.Threading;
 
 namespace Valuator.Pages
 {
@@ -28,10 +31,6 @@ namespace Valuator.Pages
 
             string id = Guid.NewGuid().ToString();
 
-            string rankKey = "RANK-" + id;
-            var rank = GetRank(text);
-            _storage.Store(rankKey, rank.ToString());
-
             string similarityKey = "SIMILARITY-" + id;
             int similarity = GetSimilarity(text, id);
             _storage.Store(similarityKey, similarity.ToString());
@@ -39,19 +38,33 @@ namespace Valuator.Pages
             string textKey = "TEXT-" + id;
             _storage.Store(textKey, text);
 
+            CalculateAndSaveRank(id);
+
             return Redirect($"summary?id={id}");
         }
-        private double GetRank(string text)
+        private void CalculateAndSaveRank(string id)
         {
-            var nonAlphabeticalCharsCounter = 0;
-            foreach (var ch in text)
+            CancellationTokenSource cts = new CancellationTokenSource();
+
+            Task.Factory.StartNew(() => ProduceAsync(id, cts.Token), cts.Token);
+        }
+
+        private async Task ProduceAsync(string id, CancellationToken ct)
+        {
+            ConnectionFactory cf = new ConnectionFactory();
+
+            using (IConnection c = cf.CreateConnection())
             {
-                if (!Char.IsLetter(ch))
+                if (!ct.IsCancellationRequested)
                 {
-                    nonAlphabeticalCharsCounter++;
+                    byte[] data = Encoding.UTF8.GetBytes(id);
+                    c.Publish("valuator.processing.rank", data);
+                    await Task.Delay(1000);
                 }
+                
+                c.Drain();
+                c.Close();
             }
-            return Convert.ToDouble(nonAlphabeticalCharsCounter) / Convert.ToDouble(text.Length);
         }
         private int GetSimilarity(string text, string id)
         {
