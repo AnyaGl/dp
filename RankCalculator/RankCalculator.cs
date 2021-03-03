@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using NATS.Client;
 using System;
 using System.Text;
@@ -8,10 +9,12 @@ namespace RankCalculator
 {
     public class RankCalculator
     {
+        ILogger<RankCalculator> _logger;
         private IAsyncSubscription _subscription;
-        IConnection _conn;
-        public RankCalculator(IStorage storage)
+        private IConnection _conn;
+        public RankCalculator(ILogger<RankCalculator> logger, IStorage storage)
         {
+            _logger = logger;
             _conn = new ConnectionFactory().CreateConnection();
 
             _subscription = _conn.SubscribeAsync("valuator.processing.rank", "rank_calculator", (sender, args) =>
@@ -46,7 +49,10 @@ namespace RankCalculator
                     nonAlphabeticalCharsCounter++;
                 }
             }
-            return Convert.ToDouble(nonAlphabeticalCharsCounter) / Convert.ToDouble(text.Length);
+            double rank =  Convert.ToDouble(nonAlphabeticalCharsCounter) / Convert.ToDouble(text.Length);
+            _logger.LogDebug($"Text {text.Substring(0, Math.Min(10, text.Length))} (lenght {text.Length}) contains {nonAlphabeticalCharsCounter} non alphabetical chars and has rank {rank}");
+
+            return rank;
         }
 
     }
