@@ -46,22 +46,19 @@ namespace Valuator.Pages
         {
             CancellationTokenSource cts = new CancellationTokenSource();
 
-            Task.Factory.StartNew(() => ProduceAsync(id, cts.Token), cts.Token);
+            Task.Factory.StartNew(() => ProduceAsync(id), cts.Token);
         }
 
-        private async Task ProduceAsync(string id, CancellationToken ct)
+        private async Task ProduceAsync(string id)
         {
             ConnectionFactory cf = new ConnectionFactory();
 
             using (IConnection c = cf.CreateConnection())
             {
-                if (!ct.IsCancellationRequested)
-                {
-                    byte[] data = Encoding.UTF8.GetBytes(id);
-                    c.Publish("valuator.processing.rank", data);
-                    await Task.Delay(1000);
-                }
-                
+                byte[] data = Encoding.UTF8.GetBytes(id);
+                c.Publish("valuator.processing.rank", data);
+                await Task.Delay(1000);
+                                
                 c.Drain();
                 c.Close();
             }
