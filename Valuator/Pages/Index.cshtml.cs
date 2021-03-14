@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NATS.Client;
 using System.Text;
 using System.Threading;
+using System.Text.Json;
 
 namespace Valuator.Pages
 {
@@ -25,7 +26,7 @@ namespace Valuator.Pages
         {
 
         }
-        public IActionResult OnPost(string text)
+        public async Task<IActionResult> OnPost(string text)
         {
             _logger.LogDebug(text);
 
@@ -34,31 +35,40 @@ namespace Valuator.Pages
             string similarityKey = Constants.SIMILARITY_PREFIX + id;
             int similarity = GetSimilarity(text, id);
             _storage.Store(similarityKey, similarity.ToString());
+            PublishSimilarityCalculatedEvent(id, similarity);
 
             string textKey = Constants.TEXT_PREFIX + id;
             _storage.Store(textKey, text);
 
-            CalculateAndSaveRank(id);
+            await CalculateAndSaveRank(id);
 
             return Redirect($"summary?id={id}");
         }
-        private void CalculateAndSaveRank(string id)
-        {
-            CancellationTokenSource cts = new CancellationTokenSource();
-
-            Task.Factory.StartNew(() => ProduceAsync(id), cts.Token);
-        }
-
-        private async Task ProduceAsync(string id)
+        private async Task CalculateAndSaveRank(string id)
         {
             ConnectionFactory cf = new ConnectionFactory();
-
             using (IConnection c = cf.CreateConnection())
             {
                 byte[] data = Encoding.UTF8.GetBytes(id);
                 c.Publish("valuator.processing.rank", data);
                 await Task.Delay(1000);
-                                
+
+                c.Drain();
+                c.Close();
+            }
+        }
+        private void PublishSimilarityCalculatedEvent(string id, int similarity)
+        {
+            Similarity textSmilarity = new Similarity();
+            textSmilarity.TextId = id;
+            textSmilarity.Value = similarity;
+            
+            ConnectionFactory cf = new ConnectionFactory();
+            using (IConnection c = cf.CreateConnection())
+            {
+                byte[] data = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(textSmilarity));
+                c.Publish("valuator.similarity_calculated", data);
+
                 c.Drain();
                 c.Close();
             }
@@ -69,7 +79,7 @@ namespace Valuator.Pages
             var values = _storage.GetAllTexts();
             foreach (var value in values)
             {
-                if(value == text)
+                if (value == text)
                 {
                     return 1;
                 }
