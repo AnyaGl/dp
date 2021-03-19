@@ -2,10 +2,9 @@ using System;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using NATS.Client;
-using RankCalculator;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Valuator;
+using LibLoggingObjects;
 
 namespace EventsLogger
 {

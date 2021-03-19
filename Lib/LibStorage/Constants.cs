@@ -1,6 +1,6 @@
-namespace Valuator
+namespace LibStorage
 {
-    static class Constants
+    public static class Constants
     {
         public const string RANK_PREFIX = "RANK-";
         public const string TEXT_PREFIX = "TEXT-";

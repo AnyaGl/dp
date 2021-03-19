@@ -1,6 +1,6 @@
 using System;
 
-namespace RankCalculator
+namespace LibLoggingObjects
 {
     [Serializable]
     public class Rank

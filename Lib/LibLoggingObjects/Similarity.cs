@@ -1,6 +1,6 @@
 using System;
 
-namespace Valuator
+namespace LibLoggingObjects
 {
     [Serializable]
     public class Similarity

@@ -12,9 +12,8 @@
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Valuator\IStorage.cs" />
-    <Compile Include="..\Valuator\RedisStorage.cs" />
-    <Compile Include="..\Valuator\Constants.cs" />  
+    <ProjectReference Include="../Lib/LibStorage/LibStorage.csproj" />
+    <ProjectReference Include="../Lib/LibLoggingObjects/LibLoggingObjects.csproj" /> 
   </ItemGroup>
 
 </Project>
