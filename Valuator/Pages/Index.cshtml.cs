@@ -40,7 +40,7 @@ namespace Valuator.Pages
             PublishSimilarityCalculatedEvent(id, similarity);
 
             string textKey = Constants.TEXT_PREFIX + id;
-            _storage.Store(textKey, text);
+            _storage.StoreText(textKey, text);
 
             await CalculateAndSaveRank(id);
 
@@ -78,15 +78,7 @@ namespace Valuator.Pages
         private int GetSimilarity(string text, string id)
         {
             id = Constants.TEXT_PREFIX + id;
-            var values = _storage.GetAllTexts();
-            foreach (var value in values)
-            {
-                if (value == text)
-                {
-                    return 1;
-                }
-            }
-            return 0;
+            return _storage.IsTextExist(text) ? 1 : 0;
         }
     }
 }

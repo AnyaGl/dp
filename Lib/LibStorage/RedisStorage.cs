@@ -7,15 +7,13 @@ namespace LibStorage
     public class RedisStorage : IStorage
     {
         private readonly string host = "localhost";
-        private readonly int port = 6379;
         private readonly ILogger<RedisStorage> _logger;
         private IConnectionMultiplexer _conn;
-        private List<string> _texts = new List<string>();
+        private readonly string _allTextsKey = "allTextsKey";
         public RedisStorage(ILogger<RedisStorage> logger)
         {
             _logger = logger;
             _conn = ConnectionMultiplexer.Connect(host);
-            SaveAllTexts();
         }
         public string Load(string key)
         {
@@ -34,38 +32,21 @@ namespace LibStorage
             {
                 _logger.LogWarning("Failed to save {0}: {1}", key, value);
             }
-            else if (key.StartsWith(Constants.TEXT_PREFIX) && !IsSavedText(value))
-            {
-                 _texts.Add(value);
-            }
         }
+        public void StoreText(string key, string text)
+        {
+            Store(key, text);
 
-        private void SaveAllTexts()
-        {
-            var server = _conn.GetServer(host, port);
-            foreach (var key in server.Keys(pattern: $"{Constants.TEXT_PREFIX}*"))
+            var db = _conn.GetDatabase();
+            if (!db.SetAdd(_allTextsKey, text))
             {
-                var text = Load(key);
-                if (!IsSavedText(text))
-                {
-                    _texts.Add(text);
-                }
+                _logger.LogWarning("Failed to save {0} to set", text);
             }
         }
-        private bool IsSavedText(string text)
+        public bool IsTextExist(string text)
         {
-            foreach (var savedText in _texts)
-            {
-                if(text == savedText)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        public List<string> GetAllTexts()
-        {
-            return _texts;
+            var db = _conn.GetDatabase();
+            return db.SetContains(_allTextsKey, text);
         }
     }
 }

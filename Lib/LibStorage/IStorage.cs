@@ -5,7 +5,8 @@ namespace LibStorage
     public interface IStorage
     {
         void Store(string key, string value);
+        void StoreText(string key, string text);
         string Load(string key);
-        List<string> GetAllTexts();
+        bool IsTextExist(string text);
     }
 }
