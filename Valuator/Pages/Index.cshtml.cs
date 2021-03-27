@@ -28,19 +28,22 @@ namespace Valuator.Pages
         {
 
         }
-        public async Task<IActionResult> OnPost(string text)
+        public async Task<IActionResult> OnPost(string text, string country)
         {
             _logger.LogDebug(text);
 
             string id = Guid.NewGuid().ToString();
+            
+            var segmentId = GetSegmentIdByCountry(country);
+            _logger.LogDebug("LOOKUP: {0}, {1}", id, segmentId);
+            _storage.StoreNewShardKey(id, segmentId);
 
             string similarityKey = Constants.SIMILARITY_PREFIX + id;
             int similarity = GetSimilarity(text, id);
-            _storage.Store(similarityKey, similarity.ToString());
+            _storage.Store(id, similarityKey, similarity.ToString());
             PublishSimilarityCalculatedEvent(id, similarity);
 
-            string textKey = Constants.TEXT_PREFIX + id;
-            _storage.StoreText(textKey, text);
+            _storage.StoreText(id, Constants.TEXT_PREFIX + id, text);
 
             await CalculateAndSaveRank(id);
 
@@ -64,7 +67,7 @@ namespace Valuator.Pages
             Similarity textSmilarity = new Similarity();
             textSmilarity.TextId = id;
             textSmilarity.Value = similarity;
-            
+
             ConnectionFactory cf = new ConnectionFactory();
             using (IConnection c = cf.CreateConnection())
             {
@@ -79,6 +82,23 @@ namespace Valuator.Pages
         {
             id = Constants.TEXT_PREFIX + id;
             return _storage.IsTextExist(text) ? 1 : 0;
+        }
+
+        private string GetSegmentIdByCountry(string country)
+        {
+            switch (country)
+            {
+                case "Russia":
+                    return Constants.SEGMENT_ID_RUS;
+                case "France":
+                case "Germany":
+                    return Constants.SEGMENT_ID_EU;
+                case "USA":
+                case "India":
+                    return Constants.SEGMENT_ID_OTHER;
+            }
+            _logger.LogWarning("Country {0} doesn't support", country);
+            return string.Empty;
         }
     }
 }
