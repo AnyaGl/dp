@@ -33,11 +33,9 @@ namespace Server
 
                 while (true)
                 {
-                    Console.WriteLine("Ожидание соединения клиента...");
                     // ACCEPT
                     Socket handler = listener.Accept();
 
-                    Console.WriteLine("Получение данных...");
                     byte[] buf = new byte[1024];
 
                     // RECEIVE
@@ -72,11 +70,7 @@ namespace Server
         }
         static void Main(string[] args)
         {
-            Console.WriteLine("Запуск сервера...");
             StartListening(Int32.Parse(args[0]));
-            
-            Console.WriteLine("\nНажмите ENTER чтобы выйти...");
-            Console.Read();
         }
     }
 }

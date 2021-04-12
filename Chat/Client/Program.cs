@@ -29,9 +29,6 @@ namespace Client
                     // CONNECT
                     sender.Connect(remoteEP);
 
-                    Console.WriteLine("Удалённый адрес подключения сокета: {0}",
-                        sender.RemoteEndPoint.ToString());
-
                     // SEND
                     int bytesSent = sender.Send(Encoding.UTF8.GetBytes(message));
 
