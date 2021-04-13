@@ -37,7 +37,6 @@ namespace Client
                     int bytesRec = sender.Receive(buf);
                     var history = JsonSerializer.Deserialize<List<string>>(Encoding.UTF8.GetString(buf, 0, bytesRec));
                     
-                    Console.WriteLine("История сообщений:");
                     foreach (var msg in history)
                     {
                         Console.WriteLine(msg);

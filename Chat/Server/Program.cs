@@ -43,7 +43,7 @@ namespace Server
                     string data = Encoding.UTF8.GetString(buf, 0, bytesRec);
 
                     _history.Add(data);
-                    Console.WriteLine("Полученный текст: {0}", data);
+                    Console.WriteLine("Message received: {0}", data);
 
                     // Отправляем текст обратно клиенту
                     var jsonString = JsonSerializer.Serialize(_history);
