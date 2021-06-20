@@ -1,0 +1,25 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Run Id</th>
+                <th scope="col">Events Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var run in Model.RunList)
+            {    
+                <tr>
+                    <th><a asp-page="Events" asp-route-id="@run.Id">@run.Id</a></th>
+                    <td>@run.EventsNumber</td>
+                </tr>
+            } 
+        </tbody>
+    </table>
+</div>

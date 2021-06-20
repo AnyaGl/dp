@@ -1,0 +1,40 @@
+﻿@page
+@model EventsModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <form method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Id</th>
+                <th scope="col">Description</th>
+                <th scope="col">Kind</th>
+                <th scope="col">Process Id</th>
+                <th scope="col">Run Id</th>
+                <th scope="col">Time</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in Model.EventsList)
+            {    
+                <tr>
+                    <th><input type="checkbox" name="checkedEvents" value="@e.Id"></th>
+                    <th>@e.Id</th>
+                    <td>@e.Description</td>
+                    <td>@e.Kind</td>
+                    <td>@e.ProcessId</td>
+                    <td>@e.RunId</td>
+                    <td>@e.Time</td>
+                    <td><input name="mainEvent" type="radio" value="@e.Id" /></td>
+                </tr>
+            } 
+        </tbody>
+    </table>
+    <input type="submit" value="ПСП">
+    </form>
+</div>

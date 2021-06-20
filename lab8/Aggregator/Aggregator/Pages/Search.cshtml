@@ -1,0 +1,28 @@
+﻿@page
+@model SearchModel
+@{
+    ViewData["Title"] = "Search";
+}
+
+<form method="post">
+    <div class="form-group">
+        <label for="processId">Process Id</label>
+        <input type="text" class="form-control" name="processId" required> 
+    </div>
+    <div class="form-group">
+        <label for="runId">Run Id</label>
+        <input type="text" class="form-control" name="runId" required> 
+    </div>
+    <div class="form-group">
+        <label for="time">Time</label>
+        <div class="form-row">
+            <div class="col">
+                <input type="text" class="form-control" name="timeVector" placeholder="example: [1,2,0]" required> 
+            </div>
+            <div class="col">
+                <select name="time" asp-items="Model.Options" class="form-control"></select>
+            </div>
+        </div>
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
