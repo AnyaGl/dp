@@ -49,7 +49,7 @@ namespace Aggregator
                 {                    
                     cr.BeforeEvents.Add(e);
                 }
-                else if (AreEqual(eventTime, currEventTime))
+                else if (AreParallel(eventTime, currEventTime))
                 {
                     cr.ParallelEvents.Add(e);
                 }
@@ -71,19 +71,6 @@ namespace Aggregator
                 return events;
             }
 
-            var resultEvents = new List<Event>();
-            if (timeInterval == "exactly")
-            {
-                foreach(var e in events)
-                {
-                    if (e.Time == timeVector)
-                    {
-                        resultEvents.Add(e);
-                    }
-                }
-                return resultEvents;
-            }
-
             Func<List<int>, List<int>, bool> compare;
 
             switch (timeInterval)
@@ -95,12 +82,16 @@ namespace Aggregator
                     compare = IsGreater;
                     break;
                 case "parallel":
+                    compare = AreParallel;
+                    break;
+                case "exactly":
                     compare = AreEqual;
                     break;
                 default:
                     throw new Exception($"Unknown time interval: {timeInterval}");
             }
 
+            var resultEvents = new List<Event>();
             var time = JsonSerializer.Deserialize<List<int>>(timeVector);
             foreach(var e in events)
             {
@@ -169,6 +160,15 @@ namespace Aggregator
                 }
             }
             return true;
+        }
+
+        private static bool AreParallel(List<int> x, List<int> y)
+        {
+            if (x.Count != y.Count)
+            {
+                return false;
+            }
+            return !IsLess(x, y) && !IsLess(y, x);
         }
     }
 }
