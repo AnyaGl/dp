@@ -15,9 +15,9 @@ namespace Aggregator.Pages
         private readonly ILogger<SearchResultModel> _logger;
         private IStorage _storage;
         public List<Event> Events { get; set; }
-        public int ProcessId { get; set; }
+        public int? ProcessId { get; set; }
         public int RunId { get; set; }        
-        public string TimeVector { get; set; }        
+        public string? TimeVector { get; set; }        
         public string TimeInterval { get; set; }
 
         public SearchResultModel(ILogger<SearchResultModel> logger, IStorage storage)
@@ -26,7 +26,7 @@ namespace Aggregator.Pages
             _storage = storage;
         }
 
-        public void OnGet(int processId, int runId, string timeVector, string timeInterval)
+        public void OnGet(int? processId, int runId, string? timeVector, string timeInterval)
         {            
             Events = _storage.GetEventsWithFields(processId, runId, timeVector, timeInterval);
             ProcessId = processId;

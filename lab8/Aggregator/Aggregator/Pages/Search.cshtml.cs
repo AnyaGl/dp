@@ -34,11 +34,17 @@ namespace Aggregator.Pages
         public IActionResult OnPost()
         {
             var processId = Request.Form["ProcessId"];
+            int? intProcessId = (processId == "") ? null : Int32.Parse(processId);
             var runId = Request.Form["RunId"];
             var timeVector = Request.Form["TimeVector"];
             var timeInterval = Request.Form["Time"];
 
-            string url = Url.Page("SearchResult", new {processId = Int32.Parse(processId), runId = Int32.Parse(runId), timeVector = timeVector, timeInterval = timeInterval});
+            string url = Url.Page("SearchResult", new {
+                processId = intProcessId, 
+                runId = Int32.Parse(runId), 
+                timeVector = timeVector, 
+                timeInterval = timeInterval
+            });
             return Redirect(url);
         }
     }

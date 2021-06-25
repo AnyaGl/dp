@@ -41,15 +41,15 @@ namespace Aggregator
                 Event e = _db.Events.FirstOrDefault(e => e.Id == id);                
                 List<int> eventTime = JsonSerializer.Deserialize<List<int>>(e.Time);
 
-                if (eventTime[processId] > currEventTime[processId])
+                if (IsGreater(eventTime, currEventTime))
                 {
                     cr.AfterEvents.Add(e);
                 }
-                else if (eventTime[processId] < currEventTime[processId])
+                else if (IsLess(eventTime, currEventTime))
                 {                    
                     cr.BeforeEvents.Add(e);
                 }
-                else
+                else if (AreEqual(eventTime, currEventTime))
                 {
                     cr.ParallelEvents.Add(e);
                 }
@@ -57,15 +57,21 @@ namespace Aggregator
             return cr;
         }
 
-        public List<Event> GetEventsWithFields(int processId, int runId, string timeVector, string timeInterval)
+        public List<Event> GetEventsWithFields(int? processId, int runId, string? timeVector, string timeInterval)
         {
             var events = _db.Events.ToList();
             events = events.Where(e => e.RunId == runId).ToList();
-            events = events.Where(e => e.ProcessId == processId).ToList();
 
+            if (processId != null)
+            {
+                events = events.Where(e => e.ProcessId == processId).ToList();
+            }
+            if (timeVector == null)
+            {
+                return events;
+            }
 
             var resultEvents = new List<Event>();
-
             if (timeInterval == "exactly")
             {
                 foreach(var e in events)
@@ -75,46 +81,94 @@ namespace Aggregator
                         resultEvents.Add(e);
                     }
                 }
+                return resultEvents;
             }
-            
+
+            Func<List<int>, List<int>, bool> compare;
+
+            switch (timeInterval)
+            {
+                case "before":
+                    compare = IsLess;
+                    break;
+                case "after":
+                    compare = IsGreater;
+                    break;
+                case "parallel":
+                    compare = AreEqual;
+                    break;
+                default:
+                    throw new Exception($"Unknown time interval: {timeInterval}");
+            }
+
             var time = JsonSerializer.Deserialize<List<int>>(timeVector);
-            if (timeInterval == "before")
+            foreach(var e in events)
             {
-                foreach(var e in events)
+                List<int> eventTime = JsonSerializer.Deserialize<List<int>>(e.Time);
+                if (compare(eventTime, time))
                 {
-                    List<int> eventTime = JsonSerializer.Deserialize<List<int>>(e.Time);
-                    if (eventTime[processId] < time[processId])
-                    {
                         resultEvents.Add(e);
-                    }
                 }
             }
-
-            if (timeInterval == "after")
-            {
-                foreach(var e in events)
-                {
-                    List<int> eventTime = JsonSerializer.Deserialize<List<int>>(e.Time);
-                    if (eventTime[processId] > time[processId])
-                    {
-                        resultEvents.Add(e);
-                    }
-                }
-            }
-
-            if (timeInterval == "parallel")
-            {
-                foreach(var e in events)
-                {
-                    List<int> eventTime = JsonSerializer.Deserialize<List<int>>(e.Time);
-                    if (eventTime[processId] == time[processId])
-                    {
-                        resultEvents.Add(e);
-                    }
-                }
-            }
-
             return resultEvents;
+        }
+
+        private static bool IsGreater(List<int> x, List<int> y)
+        {
+            if (x.Count != y.Count)
+            {
+                return false;
+            }
+            bool greater = false;
+            for (int i = 0; i < x.Count; ++i)
+            {
+                if (x[i] > y[i])
+                {
+                    greater = true;
+                }
+                else if (x[i] < y[i])
+                {
+                    return false;
+                }
+            }
+            return greater;
+        }
+
+        private static bool IsLess(List<int> x, List<int> y)
+        {
+            if (x.Count != y.Count)
+            {
+                return false;
+            }
+            bool less = false;
+            for (int i = 0; i < x.Count; ++i)
+            {
+                if (x[i] < y[i])
+                {
+                    less = true;
+                }
+                else if (x[i] > y[i])
+                {
+                    return false;
+                }
+            }
+            return less;
+        }
+
+        private static bool AreEqual(List<int> x, List<int> y)
+        {
+            if (x.Count != y.Count)
+            {
+                return false;
+            }
+            for (int i = 0; i < x.Count; ++i)
+            {
+                if (x[i] != y[i])
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

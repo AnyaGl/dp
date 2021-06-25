@@ -11,6 +11,6 @@ namespace Aggregator
         List<Run> GetRunList();
         List<Event> GetEventsByRunId(int runId);
         CausalRelationship GetCausalRelationship(int currentEventId, List<int> eventsIds);
-        List<Event> GetEventsWithFields(int processId, int runId, string timeVector, string timeInterval);
+        List<Event> GetEventsWithFields(int? processId, int runId, string? timeVector, string timeInterval);
     }
 }

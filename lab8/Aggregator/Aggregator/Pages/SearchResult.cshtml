@@ -5,9 +5,15 @@
 }
 
 <h5>Search params</h5>
-<span>Process Id: @Model.ProcessId</span><br>
+@if (Model.ProcessId != null)
+{
+    <span>Process Id: @Model.ProcessId</span><br>
+}
 <span>Run Id: @Model.RunId</span><br>
-<span>Time: @Model.TimeInterval @Model.TimeVector</span><br>
+@if (Model.TimeVector != null)
+{
+    <span>Time: @Model.TimeInterval @Model.TimeVector</span><br>
+}
 <br>
 
 <table class="table">
